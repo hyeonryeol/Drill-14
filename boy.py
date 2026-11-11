@@ -17,6 +17,11 @@ RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
+STRIDE_LENGTH_M = 0.8  # 보폭 길이
+RUN_FRAMES_PER_STRIDE = 5  # 1개 보폭에 대한 애니메이션 프레임 수
+# 프레임 증가 속도, 즉 1초당 몇개 프레임을 증가시켜야 하는가?
+RUN_FRAMES_PER_SECOND = RUN_SPEED_MPS / STRIDE_LENGTH_M * RUN_FRAMES_PER_STRIDE
+
 
 class Idle:
     def enter(self, boy):
@@ -67,13 +72,13 @@ class Run:
         boy.frame = 0
 
     def do(self, boy):
-        boy.frame = (boy.frame + 1) % 8
+        boy.frame = (boy.frame + RUN_FRAMES_PER_SECOND * game_framework.frame_time) % 8
         boy.x += boy.dir * RUN_SPEED_PPS * game_framework.frame_time
         boy.x = max(25, min(get_canvas_width() - 25, boy.x))
 
     def draw(self, boy):
         row = 100 if boy.face_dir == 1 else 0
-        boy.image.clip_draw(boy.frame * 100, row, 100, 100, boy.x, boy.y)
+        boy.image.clip_draw(int(boy.frame) * 100, row, 100, 100, boy.x, boy.y)
 
     def space(self, boy):
         boy.fire_ball()
