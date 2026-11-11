@@ -8,6 +8,12 @@ PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
 BIRD_LENGTH_M = 1.5
 BIRD_SCALE = BIRD_LENGTH_M * PIXEL_PER_METER / 146
 
+# Bird Fly Speed
+FLY_SPEED_KMPH = 20.0  # Km / Hour
+FLY_SPEED_MPM = (FLY_SPEED_KMPH * 1000.0 / 60.0)
+FLY_SPEED_MPS = (FLY_SPEED_MPM / 60.0)
+FLY_SPEED_PPS = (FLY_SPEED_MPS * PIXEL_PER_METER)
+
 # bird_animation.png 프레임 데이터 (left, bottom, width, height, dx, dy)
 # 5열 x 3행에 14프레임. 프레임마다 투명하지 않은 픽셀 범위만 잘라낸다.
 # 칸의 기준점(가로 182픽셀 격자, 세로 506/3 격자)을 몸 중심으로 삼고,
@@ -43,10 +49,12 @@ class Bird:
             Bird.image = load_image('bird_animation.png')
         self.x, self.y = x, y
         self.frame = 0.0
+        self.dir = 1
 
     def update(self):
         dt = game_framework.frame_time
         self.frame = (self.frame + FLAP_FRAMES_PER_SECOND * dt) % FRAMES_PER_FLAP
+        self.x += self.dir * FLY_SPEED_PPS * dt
 
     def draw(self):
         left, bottom, width, height, dx, dy = FRAMES[int(self.frame)]
