@@ -1,3 +1,5 @@
+import random
+
 from pico2d import get_canvas_width, load_image
 
 import game_framework
@@ -44,12 +46,12 @@ FLAP_FRAMES_PER_SECOND = FRAMES_PER_FLAP * FLAPS_PER_SECOND
 class Bird:
     image = None
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, direction):
         if Bird.image is None:
             Bird.image = load_image('bird_animation.png')
         self.x, self.y = x, y
-        self.frame = 0.0
-        self.dir = 1
+        self.frame = random.uniform(0, FRAMES_PER_FLAP)  # 날갯짓 시작 위상
+        self.dir = direction
 
     def update(self):
         dt = game_framework.frame_time

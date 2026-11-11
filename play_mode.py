@@ -1,3 +1,5 @@
+import random
+
 from pico2d import *
 import game_world
 import game_framework
@@ -32,7 +34,8 @@ def init():
     game_world.add_object(grass, 0)
 
     for i in range(BIRD_COUNT):
-        bird = Bird(100 + i * 150, 450)
+        bird = Bird(random.randint(100, 1500), random.randint(420, 570),
+                    random.choice((-1, 1)))
         game_world.add_object(bird)
 
 
