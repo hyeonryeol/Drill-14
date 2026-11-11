@@ -22,6 +22,8 @@ RUN_FRAMES_PER_STRIDE = 5  # 1개 보폭에 대한 애니메이션 프레임 수
 # 프레임 증가 속도, 즉 1초당 몇개 프레임을 증가시켜야 하는가?
 RUN_FRAMES_PER_SECOND = RUN_SPEED_MPS / STRIDE_LENGTH_M * RUN_FRAMES_PER_STRIDE
 
+IDLE_FRAMES_PER_SECOND = 8.0  # 숨쉬기 8프레임을 1초에 한 번
+
 
 class Idle:
     def enter(self, boy):
@@ -32,11 +34,11 @@ class Idle:
         if get_time() - boy.idle_started_at >= 5.0:
             boy.fall_asleep()
         else:
-            boy.frame = (boy.frame + 1) % 8
+            boy.frame = (boy.frame + IDLE_FRAMES_PER_SECOND * game_framework.frame_time) % 8
 
     def draw(self, boy):
         row = 300 if boy.face_dir == 1 else 200
-        boy.image.clip_draw(boy.frame * 100, row, 100, 100, boy.x, boy.y)
+        boy.image.clip_draw(int(boy.frame) * 100, row, 100, 100, boy.x, boy.y)
 
     def space(self, boy):
         boy.fire_ball()
@@ -56,7 +58,7 @@ class Sleep:
         angle = pi / 2 if boy.face_dir == 1 else -pi / 2
         flip = '' if boy.face_dir == 1 else 'h'
         boy.image.clip_composite_draw(
-            boy.frame * 100, 300, 100, 100,
+            int(boy.frame) * 100, 300, 100, 100,
             angle, flip, boy.x, boy.y - 30, 100, 100
         )
 
