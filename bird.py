@@ -1,4 +1,4 @@
-from pico2d import load_image
+from pico2d import get_canvas_width, load_image
 
 import game_framework
 
@@ -56,8 +56,21 @@ class Bird:
         self.frame = (self.frame + FLAP_FRAMES_PER_SECOND * dt) % FRAMES_PER_FLAP
         self.x += self.dir * FLY_SPEED_PPS * dt
 
+        # 몸 중심이 화면 끝에서 몸길이 절반만큼 안쪽에 닿으면 방향 전환
+        half = BIRD_LENGTH_M * PIXEL_PER_METER / 2
+        if self.x > get_canvas_width() - half:
+            self.x, self.dir = get_canvas_width() - half, -1
+        elif self.x < half:
+            self.x, self.dir = half, 1
+
     def draw(self):
         left, bottom, width, height, dx, dy = FRAMES[int(self.frame)]
-        self.image.clip_draw(left, bottom, width, height,
-                             self.x + dx * BIRD_SCALE, self.y + dy * BIRD_SCALE,
-                             width * BIRD_SCALE, height * BIRD_SCALE)
+        if self.dir == 1:
+            self.image.clip_draw(left, bottom, width, height,
+                                 self.x + dx * BIRD_SCALE, self.y + dy * BIRD_SCALE,
+                                 width * BIRD_SCALE, height * BIRD_SCALE)
+        else:
+            # 원본은 오른쪽을 보므로 좌우 반전하고 dx 부호도 바꾼다 (몸 중심 기준 반전)
+            self.image.clip_composite_draw(left, bottom, width, height, 0, 'h',
+                                           self.x - dx * BIRD_SCALE, self.y + dy * BIRD_SCALE,
+                                           width * BIRD_SCALE, height * BIRD_SCALE)
