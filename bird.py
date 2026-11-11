@@ -15,6 +15,7 @@ FLY_SPEED_KMPH = 20.0  # Km / Hour
 FLY_SPEED_MPM = (FLY_SPEED_KMPH * 1000.0 / 60.0)
 FLY_SPEED_MPS = (FLY_SPEED_MPM / 60.0)
 FLY_SPEED_PPS = (FLY_SPEED_MPS * PIXEL_PER_METER)
+MIN_FLY_SPEED_KMPH, MAX_FLY_SPEED_KMPH = 16.0, 24.0  # 새마다 속력이 다르다
 
 # bird_animation.png 프레임 데이터 (left, bottom, width, height, dx, dy)
 # 5열 x 3행에 14프레임. 프레임마다 투명하지 않은 픽셀 범위만 잘라낸다.
@@ -38,9 +39,12 @@ FRAMES = (
 )
 FRAMES_PER_FLAP = len(FRAMES)
 
-# 날갯짓: 1초에 3번, 즉 1초에 14 x 3 = 42프레임
+# 날갯짓: 기본 속력에서 1초에 3번
 FLAPS_PER_SECOND = 3.0
-FLAP_FRAMES_PER_SECOND = FRAMES_PER_FLAP * FLAPS_PER_SECOND
+
+
+# 날갯짓 한 번에 나아가는 거리 (소년의 보폭과 같은 개념)
+FLAP_DISTANCE_M = FLY_SPEED_MPS / FLAPS_PER_SECOND
 
 
 class Bird:
@@ -52,11 +56,15 @@ class Bird:
         self.x, self.y = x, y
         self.frame = random.uniform(0, FRAMES_PER_FLAP)  # 날갯짓 시작 위상
         self.dir = direction
+        speed_mps = random.uniform(MIN_FLY_SPEED_KMPH, MAX_FLY_SPEED_KMPH) * 1000.0 / 60.0 / 60.0
+        self.speed_pps = speed_mps * PIXEL_PER_METER
+        # 1초당 프레임 수 = 1초당 날갯짓 수 x 14
+        self.frames_per_second = speed_mps / FLAP_DISTANCE_M * FRAMES_PER_FLAP
 
     def update(self):
         dt = game_framework.frame_time
-        self.frame = (self.frame + FLAP_FRAMES_PER_SECOND * dt) % FRAMES_PER_FLAP
-        self.x += self.dir * FLY_SPEED_PPS * dt
+        self.frame = (self.frame + self.frames_per_second * dt) % FRAMES_PER_FLAP
+        self.x += self.dir * self.speed_pps * dt
 
         # 몸 중심이 화면 끝에서 몸길이 절반만큼 안쪽에 닿으면 방향 전환
         half = BIRD_LENGTH_M * PIXEL_PER_METER / 2
