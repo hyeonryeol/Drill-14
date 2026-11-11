@@ -1,5 +1,7 @@
 from pico2d import load_image
 
+import game_framework
+
 # bird_animation.png 프레임 데이터 (left, bottom, width, height, dx, dy)
 # 5열 x 3행에 14프레임. 프레임마다 투명하지 않은 픽셀 범위만 잘라낸다.
 # 칸의 기준점(가로 182픽셀 격자, 세로 506/3 격자)을 몸 중심으로 삼고,
@@ -22,6 +24,10 @@ FRAMES = (
 )
 FRAMES_PER_FLAP = len(FRAMES)
 
+# 날갯짓: 1초에 3번, 즉 1초에 14 x 3 = 42프레임
+FLAPS_PER_SECOND = 3.0
+FLAP_FRAMES_PER_SECOND = FRAMES_PER_FLAP * FLAPS_PER_SECOND
+
 
 class Bird:
     image = None
@@ -30,11 +36,12 @@ class Bird:
         if Bird.image is None:
             Bird.image = load_image('bird_animation.png')
         self.x, self.y = x, y
-        self.frame = 0
+        self.frame = 0.0
 
     def update(self):
-        self.frame = (self.frame + 1) % FRAMES_PER_FLAP
+        dt = game_framework.frame_time
+        self.frame = (self.frame + FLAP_FRAMES_PER_SECOND * dt) % FRAMES_PER_FLAP
 
     def draw(self):
-        left, bottom, width, height, dx, dy = FRAMES[self.frame]
+        left, bottom, width, height, dx, dy = FRAMES[int(self.frame)]
         self.image.clip_draw(left, bottom, width, height, self.x + dx, self.y + dy)
