@@ -1,7 +1,10 @@
 from pico2d import *
 import game_world
 import game_framework
+from boy import Boy
 from grass import Grass
+
+boy = None
 
 
 def handle_events():
@@ -12,15 +15,22 @@ def handle_events():
             return
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
+        else:
+            boy.handle_event(event)
 
 
 def init():
+    global boy
+
+    boy = Boy()
+    game_world.add_object(boy)
+
     grass = Grass()
     game_world.add_object(grass, 0)
 
 
 def pause():
-    pass
+    boy.pause()
 
 
 def resume():
@@ -28,7 +38,9 @@ def resume():
 
 
 def finish():
+    global boy
     game_world.clear()
+    boy = None
 
 
 def update():
