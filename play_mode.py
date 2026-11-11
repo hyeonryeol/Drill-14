@@ -2,6 +2,8 @@ from pico2d import *
 import game_world
 import game_framework
 from bird import Bird
+
+BIRD_COUNT = 10
 from boy import Boy
 from grass import Grass
 
@@ -29,8 +31,9 @@ def init():
     grass = Grass()
     game_world.add_object(grass, 0)
 
-    bird = Bird(800, 450)
-    game_world.add_object(bird)
+    for i in range(BIRD_COUNT):
+        bird = Bird(100 + i * 150, 450)
+        game_world.add_object(bird)
 
 
 def pause():
