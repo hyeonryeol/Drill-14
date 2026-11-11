@@ -2,6 +2,12 @@ from pico2d import load_image
 
 import game_framework
 
+PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
+
+# 원본 몸길이(부리 끝 ~ 꼬리 끝) 146픽셀을 1.5m로 그린다
+BIRD_LENGTH_M = 1.5
+BIRD_SCALE = BIRD_LENGTH_M * PIXEL_PER_METER / 146
+
 # bird_animation.png 프레임 데이터 (left, bottom, width, height, dx, dy)
 # 5열 x 3행에 14프레임. 프레임마다 투명하지 않은 픽셀 범위만 잘라낸다.
 # 칸의 기준점(가로 182픽셀 격자, 세로 506/3 격자)을 몸 중심으로 삼고,
@@ -44,4 +50,6 @@ class Bird:
 
     def draw(self):
         left, bottom, width, height, dx, dy = FRAMES[int(self.frame)]
-        self.image.clip_draw(left, bottom, width, height, self.x + dx, self.y + dy)
+        self.image.clip_draw(left, bottom, width, height,
+                             self.x + dx * BIRD_SCALE, self.y + dy * BIRD_SCALE,
+                             width * BIRD_SCALE, height * BIRD_SCALE)
